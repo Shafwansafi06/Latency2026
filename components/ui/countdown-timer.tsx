@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAnimate } from "framer-motion";
 
-// Countdown to February 6, 2026 - Start of Latency 2026
-const COUNTDOWN_FROM = "2026-02-06T00:00:00";
+// Countdown to February 6, 2026 at 7:30 PM - Start of Latency 2026
+const COUNTDOWN_FROM = "2026-02-06T19:30:00";
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
