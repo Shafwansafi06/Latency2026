@@ -5,8 +5,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 const Hero: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.08, 0.1], [1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.1], [1, 1.15]);
-  const blur = useTransform(scrollYProgress, [0.05, 0.1], [0, 10]);
+  const scale = useTransform(scrollYProgress, [0, 0.1], [1, 1.1]);
+  const blur = useTransform(scrollYProgress, [0.05, 0.1], [0, 8]);
 
   return (
     <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -24,8 +24,8 @@ const Hero: React.FC = () => {
         </motion.div>
 
         <h1
-          style={{ WebkitTextStroke: '4px black', paintOrder: 'stroke fill' }}
-          className="text-8xl md:text-[12rem] font-black tracking-tighter text-white leading-none mb-6 drop-shadow-[0_0_50px_rgba(255,255,255,0.2)]"
+          style={{ WebkitTextStroke: '2px black', paintOrder: 'stroke fill' }}
+          className="text-6xl sm:text-8xl md:text-[12rem] font-black tracking-tighter text-white leading-none mb-6 drop-shadow-[0_0_50px_rgba(255,255,255,0.2)]"
         >
           LATENCY<br />
           <span

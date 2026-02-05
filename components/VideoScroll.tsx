@@ -26,6 +26,7 @@ const VideoScroll: React.FC<VideoScrollProps> = ({ videoSrc, onReady }) => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -60,36 +61,37 @@ const VideoScroll: React.FC<VideoScrollProps> = ({ videoSrc, onReady }) => {
       handleLoadedMetadata();
     }
 
+    let rafId: number | null = null;
     const unsubscribe = scrollYProgress.on("change", (latest) => {
       if (video && video.duration && !isNaN(video.duration)) {
-        // Map scroll progress to video time based on sections
-        // Divide scroll into 4 equal parts for each section
-        let targetTime = 0;
-
-        if (latest <= 0.25) {
-          // Hero section: 0-8 seconds
-          const sectionProgress = latest / 0.25;
-          targetTime = VIDEO_SECTIONS.hero.start + (sectionProgress * (VIDEO_SECTIONS.hero.end - VIDEO_SECTIONS.hero.start));
-        } else if (latest <= 0.5) {
-          // Events section: 8-15 seconds
-          const sectionProgress = (latest - 0.25) / 0.25;
-          targetTime = VIDEO_SECTIONS.events.start + (sectionProgress * (VIDEO_SECTIONS.events.end - VIDEO_SECTIONS.events.start));
-        } else if (latest <= 0.75) {
-          // Legacy section: 15-21 seconds
-          const sectionProgress = (latest - 0.5) / 0.25;
-          targetTime = VIDEO_SECTIONS.legacy.start + (sectionProgress * (VIDEO_SECTIONS.legacy.end - VIDEO_SECTIONS.legacy.start));
-        } else {
-          // Finale section: 21-29 seconds
-          const sectionProgress = (latest - 0.75) / 0.25;
-          targetTime = VIDEO_SECTIONS.finale.start + (sectionProgress * (VIDEO_SECTIONS.finale.end - VIDEO_SECTIONS.finale.start));
+        // Cancel previous animation frame to prevent stacking
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
         }
 
-        // High-precision scrubbing logic
-        requestAnimationFrame(() => {
-          // Most browsers require small offsets to avoid frame flickering during scrub
-          if (Math.abs(video.currentTime - targetTime) > 0.01) {
+        rafId = requestAnimationFrame(() => {
+          // Map scroll progress to video time based on sections
+          let targetTime = 0;
+
+          if (latest <= 0.25) {
+            const sectionProgress = latest / 0.25;
+            targetTime = VIDEO_SECTIONS.hero.start + (sectionProgress * (VIDEO_SECTIONS.hero.end - VIDEO_SECTIONS.hero.start));
+          } else if (latest <= 0.5) {
+            const sectionProgress = (latest - 0.25) / 0.25;
+            targetTime = VIDEO_SECTIONS.events.start + (sectionProgress * (VIDEO_SECTIONS.events.end - VIDEO_SECTIONS.events.start));
+          } else if (latest <= 0.75) {
+            const sectionProgress = (latest - 0.5) / 0.25;
+            targetTime = VIDEO_SECTIONS.legacy.start + (sectionProgress * (VIDEO_SECTIONS.legacy.end - VIDEO_SECTIONS.legacy.start));
+          } else {
+            const sectionProgress = (latest - 0.75) / 0.25;
+            targetTime = VIDEO_SECTIONS.finale.start + (sectionProgress * (VIDEO_SECTIONS.finale.end - VIDEO_SECTIONS.finale.start));
+          }
+
+          // Smooth scrubbing with reduced threshold for better precision
+          if (Math.abs(video.currentTime - targetTime) > 0.05) {
             video.currentTime = targetTime;
           }
+          rafId = null;
         });
       }
     });
@@ -102,15 +104,44 @@ const VideoScroll: React.FC<VideoScrollProps> = ({ videoSrc, onReady }) => {
   }, [scrollYProgress, onReady]);
 
   // Effect to handle play/pause when muting/unmuting
-  // Browsers often require a .play() call to enable audio even if scribbling
+  // Following Chrome's autoplay policy: https://developer.chrome.com/blog/autoplay/
+  // 1. Muted autoplay is always allowed
+  // 2. Autoplay with sound requires user interaction
   useEffect(() => {
-    if (videoRef.current && !isMuted) {
-      videoRef.current.play().catch(err => {
-        console.warn("Autoplay/Audio play blocked:", err);
-        setIsMuted(true); // Re-mute if blocked
+    const handleFirstInteraction = () => {
+      if (!hasInteracted && videoRef.current) {
+        setHasInteracted(true);
+        // Unmute and play after user interaction
+        videoRef.current.muted = false;
+        setIsMuted(false);
+        videoRef.current.play().catch(err => {
+          console.warn("Audio play blocked:", err);
+          // If still blocked, revert to muted
+          videoRef.current.muted = true;
+          setIsMuted(true);
+        });
+      }
+    };
+
+    // Listen for any user interaction to enable audio
+    const events = ['click', 'touchstart', 'keydown'];
+    events.forEach(event => {
+      document.addEventListener(event, handleFirstInteraction, { once: true, passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleFirstInteraction);
       });
+    };
+  }, [hasInteracted]);
+
+  // Handle manual mute toggle after initial interaction
+  useEffect(() => {
+    if (videoRef.current && hasInteracted) {
+      videoRef.current.muted = isMuted;
     }
-  }, [isMuted]);
+  }, [isMuted, hasInteracted]);
 
   return (
     <div ref={containerRef} className="relative h-[1000vh] bg-black">

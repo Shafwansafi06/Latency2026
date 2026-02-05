@@ -20,15 +20,15 @@ const EventTimeline: React.FC = () => {
         {events.map((event, idx) => (
           <div
             key={event.id}
-            className="backdrop-blur-xl bg-black/70 border border-white/20 rounded-2xl p-6 hover:border-cyan-400/50 transition-all duration-500 group shadow-2xl"
+            className="backdrop-blur-xl bg-black/70 border border-white/20 rounded-2xl p-4 sm:p-6 hover:border-cyan-400/50 active:border-cyan-400/70 transition-all duration-300 group shadow-2xl touch-manipulation"
           >
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               {event.image && (
-                <div className="hidden md:block w-32 h-32 rounded-xl overflow-hidden border border-white/30 flex-shrink-0">
+                <div className="w-full sm:w-32 h-48 sm:h-32 rounded-xl overflow-hidden border border-white/30 flex-shrink-0">
                   <img
                     src={event.image}
                     alt={event.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 group-active:scale-105 transition-transform duration-300"
                   />
                 </div>
               )}
@@ -43,7 +43,7 @@ const EventTimeline: React.FC = () => {
                     </span>
                   ))}
                 </div>
-                <h4 className="text-2xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] mb-2 group-hover:text-cyan-400 transition-colors">
+                <h4 className="text-xl sm:text-2xl font-black text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] mb-2 group-hover:text-cyan-400 transition-colors">
                   {event.title}
                 </h4>
                 <div className="flex flex-wrap gap-4 mb-3 text-gray-300 text-sm">

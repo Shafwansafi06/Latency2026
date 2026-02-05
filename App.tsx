@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Hero from './components/Hero';
 import Vision from './components/Vision';
@@ -13,9 +13,12 @@ import VideoScroll from './components/VideoScroll';
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   // Using local video with scroll-controlled playback
   const VIDEO_URL = "/Feb_03__1023_29s_202602031253_ifyj0.mp4";
+  const BACKGROUND_MUSIC_URL = "/background-music.mp3";
 
   const handleVideoReady = useCallback(() => {
     setIsVideoReady(true);
@@ -36,8 +39,40 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [isVideoReady]);
 
+  // Background music autoplay handler - follows Chrome autoplay policy
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (!hasInteracted && audioRef.current) {
+        setHasInteracted(true);
+        audioRef.current.volume = 0.3; // Set volume to 30%
+        audioRef.current.play().catch(err => {
+          console.warn("Background music autoplay blocked:", err);
+        });
+      }
+    };
+
+    // Listen for user interactions
+    const events = ['click', 'touchstart', 'keydown'];
+    events.forEach(event => {
+      document.addEventListener(event, handleInteraction, { once: true, passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleInteraction);
+      });
+    };
+  }, [hasInteracted]);
+
   return (
     <div className="min-h-screen text-white font-inter selection:bg-cyan-500 selection:text-black">
+      {/* Background Music */}
+      <audio
+        ref={audioRef}
+        src={BACKGROUND_MUSIC_URL}
+        loop
+        preload="auto"
+      />
 
       <AnimatePresence>
         {isLoading && (
@@ -116,7 +151,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Cinematic Overlays */}
-      <div className="fixed inset-0 pointer-events-none z-[80] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.08] contrast-125 brightness-125"></div>
+      <div className="fixed inset-0 pointer-events-none z-[80] opacity-[0.08]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, transparent 1px, transparent 2px, rgba(255,255,255,0.03) 3px)', backgroundSize: '1px 3px' }}></div>
 
       {/* Scroll Progress Indicator (Right Side) */}
       <div className="fixed right-6 top-1/2 -translate-y-1/2 h-32 w-[1px] bg-white/10 hidden md:block z-50 overflow-hidden rounded-full">

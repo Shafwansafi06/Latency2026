@@ -9,7 +9,7 @@ const Finale: React.FC = () => {
     offset: ["start start", "end end"]
   });
 
-  const yearScale = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0.5, 1.2, 1]);
+  const yearScale = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0.6, 1.1, 1]);
   const yearOpacity = useTransform(scrollYProgress, [0.2, 0.4], [0, 1]);
   const taglineOpacity = useTransform(scrollYProgress, [0.7, 0.9], [0, 1]);
 
@@ -29,18 +29,18 @@ const Finale: React.FC = () => {
             style={{
               opacity: yearOpacity,
               scale: yearScale,
-              WebkitTextStroke: '8px black',
+              WebkitTextStroke: '4px black',
               paintOrder: 'stroke fill',
               textShadow: '0 4px 20px rgba(0,0,0,1), 0 0 60px rgba(0,0,0,0.9)',
               paddingRight: '0.05em'
             }}
-            className="text-[6rem] md:text-[14rem] font-black text-white leading-[0.8] italic select-none drop-shadow-[0_8px_24px_rgba(0,0,0,1)]"
+            className="text-[4rem] sm:text-[6rem] md:text-[10rem] lg:text-[14rem] font-black text-white leading-[0.8] italic select-none drop-shadow-[0_8px_24px_rgba(0,0,0,1)]"
           >
             LATENCY 2026
           </motion.h2>
 
           <motion.div style={{ opacity: taglineOpacity }} className="mt-8">
-            <p className="text-white text-xl md:text-2xl font-grotesk tracking-[0.4em] uppercase mb-12 max-w-4xl mx-auto drop-shadow-[0_4px_16px_rgba(0,0,0,1)] font-semibold">
+            <p className="text-white text-base sm:text-xl md:text-2xl font-grotesk tracking-[0.2em] sm:tracking-[0.4em] uppercase mb-12 max-w-4xl mx-auto drop-shadow-[0_4px_16px_rgba(0,0,0,1)] font-semibold px-4">
               Low Latency. High Impact. <span className="text-cyan-400 drop-shadow-[0_4px_16px_rgba(0,0,0,1)]">Infinite Possibilities.</span>
             </p>
           </motion.div>

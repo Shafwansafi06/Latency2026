@@ -5,21 +5,30 @@
     <link rel="icon" type="image/png" href="/latency-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Latency 2026 | IISER Bhopal</title>
-    <link rel="preload" href="/Feb_03__1023_29s_202602031253_ifyj0.mp4" as="video" type="video/mp4" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
       body {
         margin: 0;
         background-color: #050505;
         color: #ffffff;
         font-family: 'Inter', sans-serif;
         overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       .font-grotesk {
         font-family: 'Space+Grotesk', sans-serif;
+      }
+      /* Performance optimizations */
+      img, video {
+        will-change: transform;
+        transform: translateZ(0);
       }
       /* Hide scrollbar but keep functionality */
       ::-webkit-scrollbar {
@@ -34,6 +43,17 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
+      }
+      /* Smooth scroll for better UX */
+      html {
+        scroll-behavior: smooth;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
       }
       @keyframes glitch {
         0% { transform: translate(0); }
@@ -58,7 +78,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
